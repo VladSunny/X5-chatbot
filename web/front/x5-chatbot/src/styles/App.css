@@ -44,3 +44,51 @@
   .animate-fade-in {
     animation: fadeIn 0.3s ease-in;
   }
+  
+  .feedback-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .feedback-button {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    background-color: transparent;
+    color: #6b7280;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .feedback-button:hover {
+    background-color: #e5e7eb;
+    transform: scale(1.1);
+  }
+  
+  .dark .feedback-button {
+    color: #9ca3af;
+  }
+  
+  .dark .feedback-button:hover {
+    background-color: #4b5563;
+  }
+  
+  .feedback-like-active {
+    color: #15803d !important;
+    background-color: #bbf7d0 !important;
+  }
+  
+  .dark .feedback-like-active {
+    color: #22c55e !important;
+    background-color: #052e16 !important;
+  }
+  
+  .feedback-dislike-active {
+    color: #ef4444 !important;
+    background-color: #fee2e2 !important;
+  }
+  
+  .dark .feedback-dislike-active {
+    background-color: #7f1d1d !important;
+  }
