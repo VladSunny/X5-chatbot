@@ -7,16 +7,14 @@ from contextlib import contextmanager
 
 app = FastAPI()
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Update to specific origins in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Database setup
 DATABASE = "chatbot.db"
 
 def init_db():
@@ -36,7 +34,6 @@ def init_db():
                 FOREIGN KEY (api_key) REFERENCES users (api_key)
             )
         """)
-        # Insert a default API key for testing
         cursor.execute("INSERT OR IGNORE INTO users (api_key) VALUES (?)", ("test-api-key-123",))
         conn.commit()
 
@@ -91,7 +88,6 @@ async def chat(request: ChatRequest):
     if not request.messages or not request.messages[-1].text.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
     
-    # Placeholder response
     response_text = f"Получено: {request.messages[-1].text}. Это заглушка ответа от AI!"
     
     return {"role": "assistant", "text": response_text}

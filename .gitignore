@@ -1,0 +1,5 @@
+
+web/back/chatbot.db
+web/back/chatbot.db
+*.db
+/web/back/__pycache__
