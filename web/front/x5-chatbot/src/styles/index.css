@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: caramellatte --default;
+}
+
+body {
+  @apply font-mono;
+}
+
+.typing-animation {
+  font-family: monospace; /* Моноширинный шрифт для эффекта печатания */
+  overflow: hidden; /* Скрываем текст, который ещё не напечатан */
+  display: inline-block; /* Чтобы курсор был рядом с текстом */
+}
+
