@@ -1,15 +1,17 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes: caramellatte --default;
-}
+/* src/index.css */
+@tailwind utilities;
 
 body {
-  @apply font-mono;
+  @apply bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100;
+  font-family: 'Inter', sans-serif;
 }
 
-.typing-animation {
-  font-family: monospace; /* Моноширинный шрифт для эффекта печатания */
-  overflow: hidden; /* Скрываем текст, который ещё не напечатан */
-  display: inline-block; /* Чтобы курсор был рядом с текстом */
+::-webkit-scrollbar {
+  width: 6px;
 }
 
+::-webkit-scrollbar-thumb {
+  background-color: #4ade80; /* Tailwind green-400 */
+  border-radius: 4px;
+}

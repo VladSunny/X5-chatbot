@@ -1,0 +1,46 @@
+.message-bubble {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    max-width: 24rem;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    animation: fadeIn 0.3s ease-in;
+  }
+  
+  .message-user {
+    background-color: #ffffff;
+    color: #1f2937;
+    align-self: flex-end;
+    text-align: right;
+  }
+  
+  .message-assistant {
+    background-color: #dcfce7;
+    color: #1f2937;
+    align-self: flex-start;
+  }
+  
+  .dark .message-user {
+    background-color: #374151;
+    color: #f3f4f6;
+  }
+  
+  .dark .message-assistant {
+    background-color: #14532d;
+    color: #f3f4f6;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
