@@ -1,17 +1,83 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Message from './Message';
 
-export default function ChatWindow({
-  messages,
-  input,
-  setInput,
-  handleSend,
-  feedback,
-  handleFeedback,
-  isLoggedIn,
-  error,
-  toggleSidebar,
-}) {
+export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
+  const [messages, setMessages] = useState([
+    { role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' },
+  ]);
+  const [input, setInput] = useState('');
+  const [error, setError] = useState(null);
+  const [feedback, setFeedback] = useState({});
+
+  const generateId = () => crypto.randomUUID();
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+    if (!isLoggedIn) {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', text: 'Пожалуйста, войдите в аккаунт', id: generateId() },
+      ]);
+      return;
+    }
+
+    const userMessage = { role: 'user', text: input, id: generateId() };
+    setMessages([...messages, userMessage]);
+    setInput('');
+    setError(null);
+
+    try {
+      const response = await fetch('http://localhost:8000/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('apiKey')}`,
+        },
+        body: JSON.stringify({ messages: [...messages, userMessage] }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail || 'Ошибка при обращении к серверу');
+      }
+
+      const data = await response.json();
+      setMessages((prev) => [...prev, { ...data, id: generateId() }]);
+    } catch (err) {
+      setError('Не удалось получить ответ от сервера');
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', text: 'Ошибка: ' + err.message, id: generateId() },
+      ]);
+    }
+  };
+
+  const handleFeedback = async (messageId, value) => {
+    if (!isLoggedIn) {
+      setError('Пожалуйста, войдите в аккаунт');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8000/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('apiKey')}`,
+        },
+        body: JSON.stringify({ message_id: messageId, feedback: value }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка при отправке фидбека');
+      }
+
+      setFeedback((prev) => ({ ...prev, [messageId]: value }));
+    } catch (err) {
+      setError('Не удалось отправить фидбек');
+    }
+  };
+
   return (
     <main className="flex-1 flex flex-col">
       <header className="p-4 border-b bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm text-lg font-semibold flex items-center justify-between">

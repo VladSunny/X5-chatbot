@@ -1,7 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-export default function LoginModal({ show, apiKeyInput, setApiKeyInput, handleLogin, handleCancel, error }) {
+export default function LoginModal({ show, setShowLoginModal, setIsLoggedIn }) {
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [error, setError] = useState(null);
+
   if (!show) return null;
+
+  const handleLogin = async () => {
+    if (!apiKeyInput.trim()) {
+      setError('Введите API ключ');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ api_key: apiKeyInput }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Неверный API ключ');
+      }
+
+      localStorage.setItem('apiKey', apiKeyInput);
+      setIsLoggedIn(true);
+      setShowLoginModal(false);
+      setError(null);
+      setApiKeyInput('');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
@@ -25,7 +57,7 @@ export default function LoginModal({ show, apiKeyInput, setApiKeyInput, handleLo
             Войти
           </button>
           <button
-            onClick={handleCancel}
+            onClick={() => setShowLoginModal(false)}
             className="bg-gray-300 dark:bg-gray-600 text-black dark:text-white px-4 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition"
           >
             Отмена

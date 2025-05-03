@@ -1,6 +1,12 @@
 import React from 'react';
 
-export default function Sidebar({ isSidebarOpen, toggleSidebar, isLoggedIn, handleLogin, handleLogout }) {
+export default function Sidebar({ isSidebarOpen, toggleSidebar, isLoggedIn, setShowLoginModal, setIsLoggedIn }) {
+  const handleLogin = () => setShowLoginModal(true);
+  const handleLogout = () => {
+    localStorage.removeItem('apiKey');
+    setIsLoggedIn(false);
+  };
+
   return (
     <aside
       className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 shadow-lg flex flex-col transform transition-transform duration-300 ${
