@@ -8,7 +8,7 @@ export default function Message({ message, feedback, handleFeedback, isLoggedIn 
       } max-w-full sm:max-w-xl`}
     >
       <div>{message.text}</div>
-      {message.role === 'assistant' && isLoggedIn && (
+      {message.role === 'assistant' && message.id != 'initial' && isLoggedIn && (
         <div className="feedback-buttons mt-2 flex gap-2 justify-end">
           <button
             className={`feedback-button ${feedback === 'like' ? 'feedback-like-active' : ''}`}

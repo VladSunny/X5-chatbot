@@ -26,6 +26,16 @@ def init_db():
             )
         """)
         cursor.execute("""
+            CREATE TABLE IF NOT EXISTS messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                api_key TEXT NOT NULL,
+                role TEXT NOT NULL,
+                text TEXT NOT NULL,
+                message_id TEXT NOT NULL,
+                FOREIGN KEY (api_key) REFERENCES users (api_key)
+            )
+        """)
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS feedback (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 message_id TEXT NOT NULL,
@@ -83,14 +93,40 @@ async def login(request: LoginRequest):
             raise HTTPException(status_code=401, detail="Неверный API ключ")
     return {"message": "Успешный вход"}
 
+@app.get("/messages", dependencies=[Depends(get_api_key)])
+async def get_messages(api_key: str = Depends(get_api_key)):
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT role, text, message_id FROM messages WHERE api_key = ?", (api_key,))
+        messages = [{"role": row[0], "text": row[1], "id": row[2]} for row in cursor.fetchall()]
+    return {"messages":(messages)}
+
 @app.post("/chat", dependencies=[Depends(get_api_key)])
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, api_key: str = Depends(get_api_key)):
     if not request.messages or not request.messages[-1].text.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
     
-    response_text = f"Получено: {request.messages[-1].text}. Это заглушка ответа от AI!"
+    user_message = request.messages[-1]
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO messages (api_key, role, text, message_id) VALUES (?, ?, ?, ?)",
+            (api_key, user_message.role, user_message.text, user_message.id)
+        )
+        conn.commit()
     
-    return {"role": "assistant", "text": response_text}
+    response_text = f"Получено: {user_message.text}. Это заглушка ответа от AI!"
+    response_message = {"role": "assistant", "text": response_text, "id": user_message.id}
+    
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO messages (api_key, role, text, message_id) VALUES (?, ?, ?, ?)",
+            (api_key, response_message["role"], response_message["text"], response_message["id"])
+        )
+        conn.commit()
+    
+    return response_message
 
 @app.post("/feedback", dependencies=[Depends(get_api_key)])
 async def feedback(request: FeedbackRequest, api_key: str = Depends(get_api_key)):
@@ -106,3 +142,12 @@ async def feedback(request: FeedbackRequest, api_key: str = Depends(get_api_key)
         conn.commit()
     
     return {"message_id": request.message_id, "feedback": request.feedback}
+
+@app.delete("/clear_chat", dependencies=[Depends(get_api_key)])
+async def clear_chat(api_key: str = Depends(get_api_key)):
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM messages WHERE api_key = ?", (api_key,))
+        cursor.execute("DELETE FROM feedback WHERE api_key = ?", (api_key,))
+        conn.commit()
+    return {"message": "Chat history cleared"}

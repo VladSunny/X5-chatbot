@@ -50,6 +50,7 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
         { role: 'assistant', text: 'Ошибка: ' + err.message, id: generateId() },
       ]);
     }
+    console.log(messages)
   };
 
   const handleFeedback = async (messageId, value) => {
@@ -78,6 +79,17 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
     }
   };
 
+  const handleClear = () => {
+    if (!isLoggedIn) {
+      setError('Пожалуйста, войдите в аккаунт');
+      return;
+    }
+
+    setMessages([
+      { role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' },
+    ])
+  }
+
   return (
     <main className="flex-1 flex flex-col">
       <header className="p-4 border-b bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm text-lg font-semibold flex items-center justify-between">
@@ -88,6 +100,11 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
           ☰
         </button>
         AI-ассистент
+        <button
+        className='transition-all duration-200 hover:scale-110'
+        onClick={handleClear}>
+          🗑️
+        </button>
       </header>
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
         {messages.map((msg) => (
