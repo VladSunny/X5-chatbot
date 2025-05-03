@@ -42,7 +42,8 @@ def init_db():
                 message_id TEXT NOT NULL,
                 feedback TEXT NOT NULL,
                 api_key TEXT NOT NULL,
-                FOREIGN KEY (api_key) REFERENCES users (api_key)
+                FOREIGN KEY (api_key) REFERENCES users (api_key),
+                UNIQUE (message_id, api_key)
             )
         """)
         cursor.execute("INSERT OR IGNORE INTO users (api_key) VALUES (?)", ("test-api-key-123",))
@@ -138,9 +139,21 @@ async def feedback(request: FeedbackRequest, api_key: str = Depends(get_api_key)
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO feedback (message_id, feedback, api_key) VALUES (?, ?, ?)",
-            (request.message_id, request.feedback, api_key)
+            "SELECT feedback FROM feedback WHERE message_id = ? AND api_key = ?",
+            (request.message_id, api_key)
         )
+        existing_feedback = cursor.fetchone()
+        
+        if existing_feedback:
+            cursor.execute(
+                "UPDATE feedback SET feedback = ? WHERE message_id = ? AND api_key = ?",
+                (request.feedback, request.message_id, api_key)
+            )
+        else:
+            cursor.execute(
+                "INSERT INTO feedback (message_id, feedback, api_key) VALUES (?, ?, ?)",
+                (request.message_id, request.feedback, api_key)
+            )
         conn.commit()
     
     return {"message_id": request.message_id, "feedback": request.feedback}
