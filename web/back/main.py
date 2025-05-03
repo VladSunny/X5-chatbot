@@ -5,6 +5,8 @@ from typing import List
 import sqlite3
 from contextlib import contextmanager
 import uuid
+from ChatBot.inference import get_answer, model, index, questions, q_a
+import json
 
 app = FastAPI()
 
@@ -117,7 +119,7 @@ async def chat(request: ChatRequest, api_key: str = Depends(get_api_key)):
         )
         conn.commit()
     
-    response_text = f"Получено: {user_message.text}. Это заглушка ответа от AI!"
+    response_text = get_answer(user_message.text)
     response_message_id = str(uuid.uuid4())
     response_message = {"role": "assistant", "text": response_text, "id": response_message_id}
     
