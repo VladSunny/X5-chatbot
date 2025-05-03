@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List
 import sqlite3
 from contextlib import contextmanager
+import uuid
 
 app = FastAPI()
 
@@ -99,7 +100,7 @@ async def get_messages(api_key: str = Depends(get_api_key)):
         cursor = conn.cursor()
         cursor.execute("SELECT role, text, message_id FROM messages WHERE api_key = ?", (api_key,))
         messages = [{"role": row[0], "text": row[1], "id": row[2]} for row in cursor.fetchall()]
-    return {"messages":(messages)}
+    return {"messages": messages}
 
 @app.post("/chat", dependencies=[Depends(get_api_key)])
 async def chat(request: ChatRequest, api_key: str = Depends(get_api_key)):
@@ -116,7 +117,8 @@ async def chat(request: ChatRequest, api_key: str = Depends(get_api_key)):
         conn.commit()
     
     response_text = f"Получено: {user_message.text}. Это заглушка ответа от AI!"
-    response_message = {"role": "assistant", "text": response_text, "id": user_message.id}
+    response_message_id = str(uuid.uuid4())
+    response_message = {"role": "assistant", "text": response_text, "id": response_message_id}
     
     with get_db() as conn:
         cursor = conn.cursor()

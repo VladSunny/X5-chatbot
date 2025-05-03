@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Message from './Message';
 
 export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
@@ -10,6 +10,41 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
   const [feedback, setFeedback] = useState({});
 
   const generateId = () => crypto.randomUUID();
+
+  // Fetch chat history when user logs in
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!isLoggedIn) {
+        setMessages([{ role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' }]);
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:8000/messages', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('apiKey')}`,
+          },
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.detail || 'Ошибка при получении сообщений');
+        }
+
+        const data = await response.json();
+        const fetchedMessages = data.messages.length > 0 
+          ? data.messages
+          : [{ role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' }];
+        setMessages(fetchedMessages);
+      } catch (err) {
+        setError('Не удалось загрузить историю чата');
+      }
+    };
+
+    fetchMessages();
+  }, [isLoggedIn]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -42,7 +77,7 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
       }
 
       const data = await response.json();
-      setMessages((prev) => [...prev, { ...data, id: generateId() }]);
+      setMessages((prev) => [...prev, data]);
     } catch (err) {
       setError('Не удалось получить ответ от сервера');
       setMessages((prev) => [
@@ -50,7 +85,6 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
         { role: 'assistant', text: 'Ошибка: ' + err.message, id: generateId() },
       ]);
     }
-    console.log(messages)
   };
 
   const handleFeedback = async (messageId, value) => {
@@ -79,16 +113,32 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
     }
   };
 
-  const handleClear = () => {
+  const handleClear = async () => {
     if (!isLoggedIn) {
       setError('Пожалуйста, войдите в аккаунт');
       return;
     }
 
-    setMessages([
-      { role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' },
-    ])
-  }
+    try {
+      const response = await fetch('http://localhost:8000/clear_chat', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('apiKey')}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка при очистке чата');
+      }
+
+      setMessages([{ role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' }]);
+      setFeedback({});
+      setError(null);
+    } catch (err) {
+      setError('Не удалось очистить чат');
+    }
+  };
 
   return (
     <main className="flex-1 flex flex-col">
@@ -101,8 +151,9 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
         </button>
         AI-ассистент
         <button
-        className='transition-all duration-200 hover:scale-110'
-        onClick={handleClear}>
+          className="transition-all duration-200 hover:scale-110"
+          onClick={handleClear}
+        >
           🗑️
         </button>
       </header>
