@@ -14,7 +14,7 @@ export default function Sidebar({ isSidebarOpen, toggleSidebar, isLoggedIn, setS
       } md:static md:translate-x-0 md:w-64 z-10`}
     >
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 font-bold text-xl text-green-700 dark:text-green-400">
-        5X Chatbot
+        X5 Chatbot
       </div>
       <button
         onClick={isLoggedIn ? handleLogout : handleLogin}
