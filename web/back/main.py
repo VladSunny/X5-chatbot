@@ -48,7 +48,7 @@ def init_db():
                 UNIQUE (message_id, api_key)
             )
         """)
-        cursor.execute("INSERT OR IGNORE INTO users (api_key) VALUES (?)", ("test-api-key-123",))
+        cursor.executemany("INSERT OR IGNORE INTO users (api_key) VALUES (?)", [("test-api-key-123",), ("test-api-key-456",)])
         conn.commit()
 
 init_db()

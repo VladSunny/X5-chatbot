@@ -19,6 +19,7 @@ export default function GlossaryModal({ show, setShowGlossaryModal }) {
       } catch (err) {
         setError('Ошибка при загрузке глоссария');
       }
+      
     };
 
     fetchGlossary();
