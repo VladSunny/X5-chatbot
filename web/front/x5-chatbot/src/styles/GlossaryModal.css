@@ -1,0 +1,47 @@
+.glossary-modal {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .glossary-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .glossary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background-color: #f9fafb;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+  }
+  
+  .dark .glossary-item {
+    background-color: #374151;
+  }
+  
+  .glossary-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .glossary-term {
+    font-weight: 500;
+    color: #1f2937;
+  }
+  
+  .dark .glossary-term {
+    color: #f3f4f6;
+  }
+  
+  .glossary-definition {
+    color: #4b5563;
+    text-align: right;
+  }
+  
+  .dark .glossary-definition {
+    color: #9ca3af;
+  }

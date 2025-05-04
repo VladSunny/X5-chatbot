@@ -1,10 +1,14 @@
 import React from 'react';
 
-export default function Sidebar({ isSidebarOpen, toggleSidebar, isLoggedIn, setShowLoginModal, setIsLoggedIn }) {
+export default function Sidebar({ isSidebarOpen, toggleSidebar, isLoggedIn, setShowLoginModal, setIsLoggedIn, setShowGlossaryModal }) {
   const handleLogin = () => setShowLoginModal(true);
   const handleLogout = () => {
     localStorage.removeItem('apiKey');
     setIsLoggedIn(false);
+  };
+  const handleGlossary = () => {
+    setShowGlossaryModal(true);
+    if (isSidebarOpen) toggleSidebar();
   };
 
   return (
@@ -16,6 +20,12 @@ export default function Sidebar({ isSidebarOpen, toggleSidebar, isLoggedIn, setS
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 font-bold text-xl text-green-700 dark:text-green-400">
         X5 Chatbot
       </div>
+      <button
+        onClick={handleGlossary}
+        className="p-4 text-left text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+      >
+        Глоссарий
+      </button>
       <button
         onClick={isLoggedIn ? handleLogout : handleLogin}
         className="p-4 text-left text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"

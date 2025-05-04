@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import LoginModal from '../components/LoginModal';
 import ChatWindow from '../components/ChatWindow';
+import GlossaryModal from '../components/GlossaryModal';
 import '../styles/App.css';
 
 export default function App() {
@@ -9,6 +10,7 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('apiKey'));
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showGlossaryModal, setShowGlossaryModal] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -24,6 +26,7 @@ export default function App() {
         isLoggedIn={isLoggedIn}
         setShowLoginModal={setShowLoginModal}
         setIsLoggedIn={setIsLoggedIn}
+        setShowGlossaryModal={setShowGlossaryModal}
       />
       {isSidebarOpen && (
         <div
@@ -35,6 +38,10 @@ export default function App() {
         show={showLoginModal}
         setShowLoginModal={setShowLoginModal}
         setIsLoggedIn={setIsLoggedIn}
+      />
+      <GlossaryModal
+        show={showGlossaryModal}
+        setShowGlossaryModal={setShowGlossaryModal}
       />
       <ChatWindow toggleSidebar={toggleSidebar} isLoggedIn={isLoggedIn} />
     </div>
