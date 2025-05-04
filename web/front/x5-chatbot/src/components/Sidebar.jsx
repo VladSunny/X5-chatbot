@@ -22,16 +22,21 @@ export default function Sidebar({ isSidebarOpen, toggleSidebar, isLoggedIn, setS
       </div>
       <button
         onClick={handleGlossary}
-        className="sidebar-button text-left text-gray-600 dark:text-gray-100 hover:bg-green-100 dark:hover:bg-green-900 transition-all duration-200"
+        className="sidebar-button text-left border-3 border-green-900 text-gray-600 dark:text-gray-100 hover:bg-green-100 dark:hover:bg-green-900 transition-all duration-200"
       >
         <span className="mr-2">📖</span> Глоссарий
       </button>
       <button
         onClick={isLoggedIn ? handleLogout : handleLogin}
-        className="sidebar-button text-left text-gray-600 dark:text-gray-100 hover:bg-green-100 dark:hover:bg-green-900 transition-all duration-200"
+        className="sidebar-button text-left border-3 border-green-900 text-gray-600 dark:text-gray-100 hover:bg-green-100 dark:hover:bg-green-900 transition-all duration-200"
       >
         <span className="mr-2">{isLoggedIn ? '🚪' : '🔑'}</span> {isLoggedIn ? 'Выйти' : 'Войти'}
       </button>
+      <div className="flex justify-center items-center bg-green-900 m-2 rounded-3xl">
+        <p className="text-center m-3">
+          Если ответ не соответствует запросу, добавьте больше ключевых слов
+        </p>
+      </div>
       {/* <button
         className="md:hidden sidebar-button text-gray-600 dark:text-gray-100 hover:bg-green-100 dark:hover:bg-green-900 transition-all duration-200"
         onClick={toggleSidebar}
