@@ -142,7 +142,7 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
 
   return (
     <main className="flex-1 flex flex-col">
-      <header className="p-4 border-b bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm text-lg font-semibold flex items-center justify-between">
+      <header className="p-4 border-b bg-white dark:bg-[rgba(41,42,46,255)] border-gray-200 dark:border-gray-700 shadow-sm text-lg font-semibold flex items-center justify-between">
         <button
           className="md:hidden text-gray-600 dark:text-gray-300"
           onClick={toggleSidebar}
@@ -154,10 +154,14 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
           className="transition-all duration-200 hover:scale-110"
           onClick={handleClear}
         >
-          🗑️
+          <img 
+          src="src/assets/bin.png" 
+          alt="Bin image" 
+          className="w-[40px] h-[40px] bg-[#bebebc] rounded-lg" 
+         />
         </button>
       </header>
-      <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 dark:bg-[rgba(62,66,74,255)]">
         {messages.map((msg) => (
           <Message
             key={msg.id}
@@ -173,18 +177,18 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
           </div>
         )}
       </div>
-      <footer className="p-4 border-t bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 flex items-center gap-2 flex-col sm:flex-row">
+      <footer className="p-4 border-t bg-white dark:bg-[rgba(62,66,74,255)] border-gray-200 dark:border-gray-700 flex items-center gap-2 flex-col sm:flex-row">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           placeholder="Задайте вопрос..."
-          className="flex-1 border rounded-lg p-2 bg-gray-50 dark:bg-gray-700 text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200 w-full"
+          className="flex-1 border rounded-lg p-2 bg-gray-50 dark:bg-[rgba(41,42,46,255)] text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-[rgba(84,139,57,1)] transition-all duration-200 w-full"
         />
         <button
           onClick={handleSend}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 w-full sm:w-auto"
+          className="bg-[rgba(84,139,57,1)] text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 w-full sm:w-auto"
         >
           Отправить
         </button>

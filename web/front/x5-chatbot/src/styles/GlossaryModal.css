@@ -20,7 +20,7 @@
   }
   
   .dark .glossary-item {
-    background-color: #374151;
+    background-color: #3e424a;
   }
   
   .glossary-item:hover {
@@ -30,7 +30,7 @@
   
   .glossary-term {
     font-weight: 500;
-    color: #1f2937;
+    color: rgba(41,42,46,255);
   }
   
   .dark .glossary-term {

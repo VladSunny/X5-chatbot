@@ -28,7 +28,7 @@ export default function GlossaryModal({ show, setShowGlossaryModal }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
-      <div className="glossary-modal bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+      <div className="glossary-modal bg-white dark:bg-[rgba(41,42,46,255)] p-6 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Глоссарий</h2>
         {error && (
           <div className="text-red-500 dark:text-red-400 mb-4">{error}</div>
@@ -43,7 +43,7 @@ export default function GlossaryModal({ show, setShowGlossaryModal }) {
         </div>
         <button
           onClick={() => setShowGlossaryModal(false)}
-          className="mt-4 bg-gray-300 dark:bg-gray-600 text-black dark:text-white px-4 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition w-full"
+          className="mt-4 bg-[rgba(76,78,91,255)] dark:bg-[rgba(76,78,91,255)] text-black dark:text-white px-4 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition w-full"
         >
           Закрыть
         </button>
