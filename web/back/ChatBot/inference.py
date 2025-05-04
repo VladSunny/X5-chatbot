@@ -20,7 +20,7 @@ def get_answer(text):
 
     D, I = index.search(query_embedding, k=1)
 
-    return q_a[questions[I[0][0]]]
+    return f"{q_a[questions[I[0][0]]]} (сходство {D[0][0]:.2f})"
 
 # Поиск
 # query_embedding = model.encode([new_question])
