@@ -7,7 +7,16 @@ export default function Message({ message, feedback, handleFeedback, isLoggedIn 
         message.role === 'user' ? 'message-user' : 'message-assistant'
       } max-w-full sm:max-w-xl`}
     >
-      <div>{message.text}</div>
+      <div className="flex items-start gap-2">
+        {message.role === 'assistant' && (
+          <img 
+            src="src/assets/x5_logo.png" 
+            alt="Company Logo" 
+            className="w-7 h-7 mt-1 rounded bg-white border"
+          />
+        )}
+        <div>{message.text}</div>
+      </div>
       {message.role === 'assistant' && message.id != 'initial' && isLoggedIn && (
         <div className="feedback-buttons mt-2 flex gap-2 justify-end">
           <button

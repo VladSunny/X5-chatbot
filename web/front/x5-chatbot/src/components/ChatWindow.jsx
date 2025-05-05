@@ -149,7 +149,9 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
         >
           ☰
         </button>
-        AI-ассистент
+          <span className='font-mono'>
+            AI-ассистент
+          </span>
         <button
           className="transition-all duration-200 hover:scale-110"
           onClick={handleClear}
@@ -188,9 +190,11 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
         />
         <button
           onClick={handleSend}
-          className="bg-[rgba(84,139,57,1)] text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 w-full sm:w-auto"
+          className="bg-[rgba(84,139,57,1)] text-white px-4 py-2 rounded-lg hover:bg-[rgba(116,189,79,1)] transition-all duration-200 transform hover:scale-105 w-full sm:w-auto"
         >
+          <span className='font-mono'>
           Отправить
+          </span>
         </button>
       </footer>
     </main>

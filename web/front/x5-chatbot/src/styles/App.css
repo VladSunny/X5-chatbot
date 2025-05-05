@@ -75,12 +75,12 @@
   }
   
   .feedback-like-active {
-    color: #15803d !important;
+    color: rgba(116,189,79,1) !important;
     background-color: #bbf7d0 !important;
   }
   
   .dark .feedback-like-active {
-    color: #22c55e !important;
+    color: RGBA(116,189,79,1) !important;
     background-color: #052e16 !important;
   }
   

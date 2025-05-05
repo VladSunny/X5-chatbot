@@ -13,7 +13,7 @@ export default function Sidebar({ isSidebarOpen, toggleSidebar, isLoggedIn, setS
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-[rgba(41,42,46,255)] shadow-lg flex flex-col transform transition-transform duration-300 ${
+      className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-[rgba(41,42,46,255)] shadow-[0_20px_25px_-5px_rgba(0,0,0,0.3)] flex flex-col transform transition-transform duration-300 ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       } md:static md:translate-x-0 md:w-64 z-10`}
     >
@@ -23,19 +23,18 @@ export default function Sidebar({ isSidebarOpen, toggleSidebar, isLoggedIn, setS
           alt="Company Logo" 
           className="w-[50px] h-[50px] bg-[#bebebc] rounded-lg" 
         />
-        <span className="font-bold text-xl text-[rgba(84,139,57,1)] dark:text-[rgba(84,139,57,1)">
+        <span className="font-bold font-mono text-xl text-[rgba(84,139,57,1)] dark:text-[rgba(84,139,57,1)">
           Chatbot
         </span>
       </div>
       <button
         onClick={handleGlossary}
-        className="w-full p-4 mx-auto text-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 font-medium"
-      >
+        className="font-mono p-4 mx-auto mt-10 ml-4 mr-4 mb-4 text-center text-gray-600 dark:text-gray-300 bg-[rgba(68,70,76,1)] hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 font-medium rounded-lg">
         Глоссарий
       </button>
       <button
         onClick={isLoggedIn ? handleLogout : handleLogin}
-        className="w-full p-4 mx-auto text-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 font-medium"
+        className="font-mono p-4 mx-auto mt-2 ml-4 mr-4 mb-4 text-center text-gray-600 dark:text-gray-300 bg-[rgba(68,70,76,1)] hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 font-medium rounded-lg"
       >
         {isLoggedIn ? 'Выйти' : 'Войти'}
       </button>
