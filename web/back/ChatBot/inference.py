@@ -36,7 +36,10 @@ def get_answer(text):
 
     D, I = index.search(query_embedding, k=1)
 
-    return q_a[questions[I[0][0]]]
+    if D[0][0] >= 0.61:
+        return f"{q_a[questions[I[0][0]]]} (уверенность {D[0][0]:.2f})"
+    else:
+        return f"Не уверен, что понял вас, попробуйте добавить в вопрос больше ключевых слов"
 
 
 # print(get_answer("Как получить отпуск?"))

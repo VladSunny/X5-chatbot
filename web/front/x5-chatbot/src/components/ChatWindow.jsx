@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Message from './Message';
 
 export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
@@ -8,10 +8,14 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
   const [input, setInput] = useState('');
   const [error, setError] = useState(null);
   const [feedback, setFeedback] = useState({});
+  const messagesEndRef = useRef(null);
 
   const generateId = () => crypto.randomUUID();
 
-  // Fetch chat history when user logs in
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   useEffect(() => {
     const fetchMessages = async () => {
       if (!isLoggedIn) {
@@ -172,6 +176,7 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
             {error}
           </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
       <footer className="p-4 border-t bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 flex items-center gap-2 flex-col sm:flex-row">
         <input

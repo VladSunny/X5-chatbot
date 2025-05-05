@@ -29,7 +29,7 @@ export default function GlossaryModal({ show, setShowGlossaryModal }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
-      <div className="glossary-modal bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+      <div className="glossary-modal bg-white dark:bg-gray-800 mx-4 p-6 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Глоссарий</h2>
         {error && (
           <div className="text-red-500 dark:text-red-400 mb-4">{error}</div>

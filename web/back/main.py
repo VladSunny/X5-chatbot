@@ -8,8 +8,18 @@ import uuid
 from ChatBot.inference import get_answer, model, index, questions, q_a
 import json
 
-app = FastAPI()
+# --- Импорты для лимитирования ---
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
+# --- Инициализация FastAPI и лимитера ---
+limiter = Limiter(key_func=get_remote_address)
+app = FastAPI()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# --- CORS ---
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -89,16 +99,18 @@ async def get_api_key(request: Request):
     return api_key
 
 @app.post("/login")
-async def login(request: LoginRequest):
+@limiter.limit("10/minute")
+async def login(request: Request, login_data: LoginRequest):
     with get_db() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT api_key FROM users WHERE api_key = ?", (request.api_key,))
+        cursor.execute("SELECT api_key FROM users WHERE api_key = ?", (login_data.api_key,))
         if not cursor.fetchone():
             raise HTTPException(status_code=401, detail="Неверный API ключ")
     return {"message": "Успешный вход"}
 
 @app.get("/messages", dependencies=[Depends(get_api_key)])
-async def get_messages(api_key: str = Depends(get_api_key)):
+@limiter.limit("10/minute")
+async def get_messages(request: Request, api_key: str = Depends(get_api_key)):
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT role, text, message_id FROM messages WHERE api_key = ?", (api_key,))
@@ -106,11 +118,12 @@ async def get_messages(api_key: str = Depends(get_api_key)):
     return {"messages": messages}
 
 @app.post("/chat", dependencies=[Depends(get_api_key)])
-async def chat(request: ChatRequest, api_key: str = Depends(get_api_key)):
-    if not request.messages or not request.messages[-1].text.strip():
+@limiter.limit("20/minute")
+async def chat(request: Request, chat_data: ChatRequest, api_key: str = Depends(get_api_key)):
+    if not chat_data.messages or not chat_data.messages[-1].text.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
     
-    user_message = request.messages[-1]
+    user_message = chat_data.messages[-1]
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -134,34 +147,36 @@ async def chat(request: ChatRequest, api_key: str = Depends(get_api_key)):
     return response_message
 
 @app.post("/feedback", dependencies=[Depends(get_api_key)])
-async def feedback(request: FeedbackRequest, api_key: str = Depends(get_api_key)):
-    if request.feedback not in ['like', 'dislike']:
+@limiter.limit("20/minute")
+async def feedback(request: Request, feedback_data: FeedbackRequest, api_key: str = Depends(get_api_key)):
+    if feedback_data.feedback not in ['like', 'dislike']:
         raise HTTPException(status_code=400, detail="Invalid feedback value")
     
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute(
             "SELECT feedback FROM feedback WHERE message_id = ? AND api_key = ?",
-            (request.message_id, api_key)
+            (feedback_data.message_id, api_key)
         )
         existing_feedback = cursor.fetchone()
         
         if existing_feedback:
             cursor.execute(
                 "UPDATE feedback SET feedback = ? WHERE message_id = ? AND api_key = ?",
-                (request.feedback, request.message_id, api_key)
+                (feedback_data.feedback, feedback_data.message_id, api_key)
             )
         else:
             cursor.execute(
                 "INSERT INTO feedback (message_id, feedback, api_key) VALUES (?, ?, ?)",
-                (request.message_id, request.feedback, api_key)
+                (feedback_data.message_id, feedback_data.feedback, api_key)
             )
         conn.commit()
     
-    return {"message_id": request.message_id, "feedback": request.feedback}
+    return {"message_id": feedback_data.message_id, "feedback": feedback_data.feedback}
 
 @app.delete("/clear_chat", dependencies=[Depends(get_api_key)])
-async def clear_chat(api_key: str = Depends(get_api_key)):
+@limiter.limit("20/minute")
+async def clear_chat(request: Request, api_key: str = Depends(get_api_key)):
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute("DELETE FROM messages WHERE api_key = ?", (api_key,))
