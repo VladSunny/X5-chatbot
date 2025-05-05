@@ -77,13 +77,16 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
 
       if (!response.ok) {
         const data = await response.json();
+        if (response.status === 429) {
+          throw new Error('Слишком много запросов. Пожалуйста, подождите минуту и попробуйте снова.');
+        }
         throw new Error(data.detail || 'Ошибка при обращении к серверу');
       }
 
       const data = await response.json();
       setMessages((prev) => [...prev, data]);
     } catch (err) {
-      setError('Не удалось получить ответ от сервера');
+      setError(err.message);
       setMessages((prev) => [
         ...prev,
         { role: 'assistant', text: 'Ошибка: ' + err.message, id: generateId() },
@@ -108,12 +111,15 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
       });
 
       if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error('Слишком много запросов. Пожалуйста, подождите минуту и попробуйте снова.');
+        }
         throw new Error('Ошибка при отправке фидбека');
       }
 
       setFeedback((prev) => ({ ...prev, [messageId]: value }));
     } catch (err) {
-      setError('Не удалось отправить фидбек');
+      setError(err.message);
     }
   };
 
@@ -133,6 +139,9 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
       });
 
       if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error('Слишком много запросов. Пожалуйста, подождите минуту и попробуйте снова.');
+        }
         throw new Error('Ошибка при очистке чата');
       }
 
@@ -140,7 +149,7 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
       setFeedback({});
       setError(null);
     } catch (err) {
-      setError('Не удалось очистить чат');
+      setError(err.message);
     }
   };
 
