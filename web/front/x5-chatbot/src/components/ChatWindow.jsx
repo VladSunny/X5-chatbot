@@ -2,9 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Message from './Message';
 
 export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' },
-  ]);
+  const [messages, setMessages] = useState(() => {
+    const savedMessages = localStorage.getItem('chatMessages');
+    return savedMessages
+      ? JSON.parse(savedMessages)
+      : [{ role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' }];
+  });
   const [input, setInput] = useState('');
   const [error, setError] = useState(null);
   const [feedback, setFeedback] = useState({});
@@ -17,38 +20,8 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
   }, [messages]);
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (!isLoggedIn) {
-        setMessages([{ role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' }]);
-        return;
-      }
-
-      try {
-        const response = await fetch('http://localhost:8000/messages', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('apiKey')}`,
-          },
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.detail || 'Ошибка при получении сообщений');
-        }
-
-        const data = await response.json();
-        const fetchedMessages = data.messages.length > 0 
-          ? data.messages
-          : [{ role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' }];
-        setMessages(fetchedMessages);
-      } catch (err) {
-        setError('Не удалось загрузить историю чата');
-      }
-    };
-
-    fetchMessages();
-  }, [isLoggedIn]);
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+  }, [messages]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -61,7 +34,7 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
     }
 
     const userMessage = { role: 'user', text: input, id: generateId() };
-    setMessages([...messages, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setError(null);
 
@@ -101,13 +74,29 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
     }
 
     try {
+      const messageIndex = messages.findIndex((msg) => msg.id === messageId);
+      if (messageIndex === -1) {
+        throw new Error('Сообщение не найдено');
+      }
+
+      const messageToSave = messages[messageIndex];
+      let userQuery = null;
+      if (messageToSave.role === 'assistant' && messageIndex > 0 && messages[messageIndex - 1].role === 'user') {
+        userQuery = messages[messageIndex - 1];
+      }
+
       const response = await fetch('http://localhost:8000/feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('apiKey')}`,
         },
-        body: JSON.stringify({ message_id: messageId, feedback: value }),
+        body: JSON.stringify({
+          message_id: messageId,
+          feedback: value,
+          message: messageToSave,
+          userQuery: userQuery,
+        }),
       });
 
       if (!response.ok) {
@@ -123,34 +112,11 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
     }
   };
 
-  const handleClear = async () => {
-    if (!isLoggedIn) {
-      setError('Пожалуйста, войдите в аккаунт');
-      return;
-    }
-
-    try {
-      const response = await fetch('http://localhost:8000/clear_chat', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('apiKey')}`,
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error('Слишком много запросов. Пожалуйста, подождите минуту и попробуйте снова.');
-        }
-        throw new Error('Ошибка при очистке чата');
-      }
-
-      setMessages([{ role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' }]);
-      setFeedback({});
-      setError(null);
-    } catch (err) {
-      setError(err.message);
-    }
+  const handleClear = () => {
+    setMessages([{ role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' }]);
+    setFeedback({});
+    setError(null);
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
   };
 
   return (

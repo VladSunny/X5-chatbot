@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import sqlite3
 from contextlib import contextmanager
 import uuid
@@ -42,7 +42,8 @@ def init_db():
                 role TEXT NOT NULL,
                 text TEXT NOT NULL,
                 message_id TEXT NOT NULL,
-                FOREIGN KEY (api_key) REFERENCES users (api_key)
+                FOREIGN KEY (api_key) REFERENCES users (api_key),
+                UNIQUE (message_id, api_key)
             )
         """)
         cursor.execute("""
@@ -82,6 +83,8 @@ class LoginRequest(BaseModel):
 class FeedbackRequest(BaseModel):
     message_id: str
     feedback: str
+    message: Message
+    userQuery: Optional[Message] = None
 
 async def get_api_key(request: Request):
     auth_header = request.headers.get("Authorization")
@@ -105,15 +108,6 @@ async def login(request: Request, login_data: LoginRequest):
             raise HTTPException(status_code=401, detail="Неверный API ключ")
     return {"message": "Успешный вход"}
 
-@app.get("/messages", dependencies=[Depends(get_api_key)])
-@limiter.limit("10/minute")
-async def get_messages(request: Request, api_key: str = Depends(get_api_key)):
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT role, text, message_id FROM messages WHERE api_key = ?", (api_key,))
-        messages = [{"role": row[0], "text": row[1], "id": row[2]} for row in cursor.fetchall()]
-    return {"messages": messages}
-
 @app.post("/chat", dependencies=[Depends(get_api_key)])
 @limiter.limit("20/minute")
 async def chat(request: Request, chat_data: ChatRequest, api_key: str = Depends(get_api_key)):
@@ -121,25 +115,9 @@ async def chat(request: Request, chat_data: ChatRequest, api_key: str = Depends(
         raise HTTPException(status_code=400, detail="Message cannot be empty")
     
     user_message = chat_data.messages[-1]
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO messages (api_key, role, text, message_id) VALUES (?, ?, ?, ?)",
-            (api_key, user_message.role, user_message.text, user_message.id)
-        )
-        conn.commit()
-    
     response_text = get_answer(user_message.text)
     response_message_id = str(uuid.uuid4())
     response_message = {"role": "assistant", "text": response_text, "id": response_message_id}
-    
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO messages (api_key, role, text, message_id) VALUES (?, ?, ?, ?)",
-            (api_key, response_message["role"], response_message["text"], response_message["id"])
-        )
-        conn.commit()
     
     return response_message
 
@@ -151,6 +129,41 @@ async def feedback(request: Request, feedback_data: FeedbackRequest, api_key: st
     
     with get_db() as conn:
         cursor = conn.cursor()
+        cursor.execute(
+            "SELECT message_id FROM messages WHERE message_id = ? AND api_key = ?",
+            (feedback_data.message_id, api_key)
+        )
+        existing_message = cursor.fetchone()
+        
+        if not existing_message:
+            cursor.execute(
+                "INSERT INTO messages (api_key, role, text, message_id) VALUES (?, ?, ?, ?)",
+                (
+                    api_key,
+                    feedback_data.message.role,
+                    feedback_data.message.text,
+                    feedback_data.message_id,
+                )
+            )
+        
+        if feedback_data.userQuery:
+            cursor.execute(
+                "SELECT message_id FROM messages WHERE message_id = ? AND api_key = ?",
+                (feedback_data.userQuery.id, api_key)
+            )
+            existing_user_query = cursor.fetchone()
+            
+            if not existing_user_query:
+                cursor.execute(
+                    "INSERT INTO messages (api_key, role, text, message_id) VALUES (?, ?, ?, ?)",
+                    (
+                        api_key,
+                        feedback_data.userQuery.role,
+                        feedback_data.userQuery.text,
+                        feedback_data.userQuery.id,
+                    )
+                )
+        
         cursor.execute(
             "SELECT feedback FROM feedback WHERE message_id = ? AND api_key = ?",
             (feedback_data.message_id, api_key)
@@ -170,13 +183,3 @@ async def feedback(request: Request, feedback_data: FeedbackRequest, api_key: st
         conn.commit()
     
     return {"message_id": feedback_data.message_id, "feedback": feedback_data.feedback}
-
-@app.delete("/clear_chat", dependencies=[Depends(get_api_key)])
-@limiter.limit("20/minute")
-async def clear_chat(request: Request, api_key: str = Depends(get_api_key)):
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM messages WHERE api_key = ?", (api_key,))
-        cursor.execute("DELETE FROM feedback WHERE api_key = ?", (api_key,))
-        conn.commit()
-    return {"message": "Chat history cleared"}

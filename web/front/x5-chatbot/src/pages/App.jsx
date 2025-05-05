@@ -16,6 +16,16 @@ export default function App() {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
 
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('chatMessages');
+    if (!savedMessages) {
+      localStorage.setItem(
+        'chatMessages',
+        JSON.stringify([{ role: 'assistant', text: 'Привет! Чем могу помочь?', id: 'initial' }])
+      );
+    }
+  }, []);
+
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
