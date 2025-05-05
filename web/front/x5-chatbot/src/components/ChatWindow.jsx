@@ -39,7 +39,7 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8000/chat', {
+      const response = await fetch('https://x5-chatbot.onrender.com/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
         userQuery = messages[messageIndex - 1];
       }
 
-      const response = await fetch('http://localhost:8000/feedback', {
+      const response = await fetch('https://x5-chatbot.onrender.com/feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
