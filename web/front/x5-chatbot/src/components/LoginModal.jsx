@@ -13,7 +13,7 @@ export default function LoginModal({ show, setShowLoginModal, setIsLoggedIn }) {
     }
 
     try {
-      const response = await fetch('http://5.129.196.209:8000/login', {
+      const response = await fetch('https://vladg00dman.website/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

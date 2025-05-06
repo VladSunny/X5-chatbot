@@ -39,7 +39,7 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
     setError(null);
 
     try {
-      const response = await fetch('http://5.129.196.209:8000/chat', {
+      const response = await fetch('https://vladg00dman.website/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ export default function ChatWindow({ toggleSidebar, isLoggedIn }) {
         userQuery = messages[messageIndex - 1];
       }
 
-      const response = await fetch('http://5.129.196.209:8000/feedback', {
+      const response = await fetch('https://vladg00dman.website/feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
