@@ -6,3 +6,5 @@ web/back/chatbot.db
 
 models/
 .venv
+
+__pycache__

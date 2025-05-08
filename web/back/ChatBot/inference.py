@@ -66,7 +66,9 @@ def get_answer(text):
     faiss.normalize_L2(query_embedding.reshape(1, -1))
 
     D, I = index.search(query_embedding, k=1)
-    if D[0][0] >= 0.61:
-        return f"{q_a[questions[I[0][0]]]} (уверенность {D[0][0]:.2f})"
+
+    if I[0][0] < len(questions) and D[0][0] >= 0.61:
+        return f"{q_a[questions[I[0][0]]]}"
     else:
         return "Не уверен, что понял вас, попробуйте добавить в вопрос больше ключевых слов"
+
