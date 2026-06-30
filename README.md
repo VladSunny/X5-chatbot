@@ -3,7 +3,7 @@
 [Русская версия](#ru) | [English version](#en)
 
 Employee support chatbot built as a team full-stack case project for the X5 Tech bootcamp. The system answers internal bureaucratic questions by retrieving the closest match from a Q&A knowledge base using semantic embeddings, FAISS, and cosine similarity.
-
+<a id="ru"></a>
 ## Русская версия
 
 ### О проекте
@@ -131,7 +131,7 @@ npm run dev
 * хранить и анализировать пользовательский фидбек для дообогащения базы;
 * поддержать `top-k` retrieval и reranking;
 * добавить observability, тесты и контейнеризацию полного контура.
-
+<a id="en"></a>
 ## English version
 
 ### About
